@@ -1,27 +1,24 @@
-# Project TWINKLE Studio — Production Release
+# TWINKLE Studio — Cloudflare Pages
 
-## Requirements
-- Node.js 20+ (Node.js 22 recommended)
-- npm only
-- No Bun runtime or Bun lockfiles
+This repository is prepared for Cloudflare Pages connected to GitHub.
 
-## Commands
+## Cloudflare Pages settings
+- Production branch: `main`
+- Build command: `npm run build`
+- Build output directory: `dist`
+- Root directory: `/` (repository root)
+- Runtime: Node.js 22 or compatible current Node.js
+
+## Build and test locally
 ```sh
-npm install
+npm ci
 npm test
 npm run build
 ```
 
-The static Cloudflare Pages output directory is `dist`. Build command: `npm run build`. This project intentionally uses a small Node build script and has no bundler dependency, so it can build offline after checkout.
+The build produces `dist/index.html` and `dist/src/production.js`.
 
-## Current working exports
-- Song-Nah: generates a locally synthesized PCM WAV file (up to 210 seconds).
-- Lyric Video: records a simple animated 1280×720, up-to-30-fps WebM visual with user-entered lyrics, plus a companion SRT captions file.
-- Music Video: records a simple animated 1280×720, up-to-30-fps WebM visual with user-entered scene text.
-- Horse Long-Form: exports user-provided manuscript/episode notes as a text file.
-- Filename sanitization, timestamped SRT generation, and WAV header generation are covered by Node tests.
+## Upload to GitHub
+Extract this ZIP and upload the **contents of the extracted folder** to the root of `marjoncompany-lgtm/twinkle_project`. Do not upload only the ZIP itself or place all files inside an extra nested folder. Keep the `src/` directory and its `production.js` file.
 
-## Important limits
-This is a browser-only starter implementation, not a connected AI production platform. These outputs are local synthetic/animated exports, not Suno/FLUX/Grok/Gemini-generated content. Generated files download to the user's device; the current static build does not upload to Google Drive or persist media blobs in a cloud vault. The email/passkey gate is client-side demo logic and is not secure authentication. Storage-extension requests are saved only in browser storage; no GCash payment is processed or verified. Do not enter sensitive personal, credential, or payment data.
-
-To make the named cloud/AI features production-grade, connect a server-side authentication service, protected database/object storage, Google Drive OAuth/API integration, and authorized AI/media providers. Keep all secrets server-side and implement verified payment callbacks before changing actual storage quotas.
+Cloudflare Pages must already be connected to this GitHub repository and use the settings listed above. After the files are committed to `main`, Cloudflare should run the build automatically.
