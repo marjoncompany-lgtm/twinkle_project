@@ -1,0 +1,12 @@
+{
+  "name": "twinkle-studio-production-release",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "node build.mjs",
+    "preview": "vite preview",
+    "test": "node --test"
+  }
+}

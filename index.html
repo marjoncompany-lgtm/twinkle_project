@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project TWINKLE: A5 Wagyu-Grade Generative Studio (Production Release)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        twinkle: {
+                            bg: '#0B0F17',
+                            card: '#131B2E',
+                            border: '#1E293B',
+                            accent: '#14F195',
+                            hover: '#10C47C',
+                            muted: '#94A3B8',
+                            highlight: '#38BDF8',
+                            songnah: '#A855F7',
+                            lyric: '#EC4899',
+                            mvideo: '#F59E0B',
+                            horse: '#38BDF8',
+                            admin: '#EF4444'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0B0F17; color: #F8FAFC; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0B0F17; }
+        ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #14F195; }
+        .glass-panel { background: rgba(19, 27, 46, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(30, 41, 59, 0.8); }
+        .neon-glow { box-shadow: 0 0 20px rgba(20, 241, 149, 0.15); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-[#14F195] selection:text-[#0B0F17]">
+
+    <header class="h-16 border-b border-twinkle-border bg-twinkle-bg/90 backdrop-blur sticky top-0 z-50 px-4 sm:px-8 flex items-center justify-between">
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="switchForm('landing')">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#14F195] to-[#38BDF8] flex items-center justify-center text-[#0B0F17] font-bold text-xl shadow-lg neon-glow">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg tracking-wider bg-gradient-to-r from-white via-slate-200 to-twinkle-accent bg-clip-text text-transparent">TWINKLE</h1>
+                <p class="text-[10px] text-twinkle-muted tracking-widest uppercase font-semibold">A5 Wagyu Studio</p>
+            </div>
+        </div>
+
+        <!-- Navigation Stepper -->
+        <nav id="app-nav" class="hidden lg:flex items-center space-x-1 bg-twinkle-card/60 p-1.5 rounded-full border border-twinkle-border overflow-x-auto max-w-4xl">
+            <button onclick="switchForm('landing')" id="nav-landing" class="px-3 py-1.5 rounded-full text-xs font-medium transition-all text-twinkle-muted hover:text-white">1. Auth</button>
+            <button onclick="switchForm('options')" id="nav-options" class="px-3 py-1.5 rounded-full text-xs font-medium transition-all text-twinkle-muted hover:text-white">2. Options</button>
+            <button onclick="switchForm('songnah')" id="nav-songnah" class="px-3 py-1.5 rounded-full text-xs font-medium transition-all text-twinkle-muted hover:text-white">3. Song-Nah Audio</button>
+            <button onclick="switchForm('lyric')" id="nav-lyric" class="px-3 py-1.5 rounded-full text-xs font-medium transition-all text-twinkle-muted hover:text-white">4. Lyric Bot</button>
+            <button onclick="switchForm('mvideo')" id="nav-mvideo" class="px-3 py-1.5 rounded-full text-xs font-medium transition-all text-twinkle-muted hover:text-white">5. Music Video Bot</button>
+            <button onclick="switchForm('horse')" id="nav-horse" class="px-3 py-1.5 rounded-full text-xs font-medium transition-all text-twinkle-muted hover:text-white">6. Horse Long-Form</button>
+            <button onclick="switchForm('storage-request')" id="nav-storage-request" class="px-3 py-1.5 rounded-full text-xs font-medium transition-all text-twinkle-muted hover:text-white">7. Storage Request</button>
+            <button onclick="switchForm('admin')" id="nav-admin" class="hidden px-3 py-1.5 rounded-full text-xs font-medium transition-all bg-rose-950/60 text-rose-400 border border-rose-500/30">Prime Admin</button>
+        </nav>
+
+        <div class="flex items-center space-x-4">
+            <!-- Outputs Gallery Trigger -->
+            <button id="gallery-btn" onclick="toggleGalleryModal(true)" class="hidden relative p-2 rounded-lg bg-twinkle-card hover:bg-twinkle-border text-twinkle-muted hover:text-white transition-colors border border-twinkle-border" title="Outputs Gallery & GDrive Vault">
+                <i class="fa-solid fa-folder-open text-twinkle-accent"></i>
+                <span id="gallery-count-badge" class="absolute -top-1 -right-1 w-4 h-4 bg-twinkle-accent text-[#0B0F17] rounded-full text-[10px] font-bold flex items-center justify-center">0</span>
+            </button>
+            <!-- User Profile Widget -->
+            <div id="user-profile-widget" class="hidden items-center space-x-2 bg-twinkle-card border border-twinkle-border px-3 py-1.5 rounded-xl">
+                <div id="user-avatar-badge" class="w-7 h-7 rounded-full bg-twinkle-accent/20 border border-twinkle-accent/40 flex items-center justify-center text-twinkle-accent text-xs font-semibold">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <span id="current-user-email-display" class="text-xs text-slate-200 font-medium max-w-[140px] truncate">creator@twinkle.studio</span>
+                <button onclick="handleLogout()" class="text-xs text-twinkle-muted hover:text-rose-400 transition-colors ml-2" title="Sign Out & Lock Studio">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 flex flex-col relative overflow-hidden">
+
+        <section id="form-landing" class="form-view flex-1 flex flex-col justify-center items-center p-6 lg:p-12 relative">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(20,241,149,0.07),transparent_50%),radial-gradient(circle_at_70%_70%,rgba(56,189,248,0.07),transparent_50%)] pointer-events-none"></div>
+            
+            <div class="max-w-4xl w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-center relative z-10">
+                <div class="space-y-6">
+                    <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-twinkle-accent/10 border border-twinkle-accent/30 text-twinkle-accent text-xs font-semibold">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>Strict Email-Only Isolation • Secure GDrive Partitions</span>
+                    </div>
+                    <h2 class="text-4xl sm:text-5xl font-extrabold tracking-tight leading-tight">
+                        Unleash <span class="bg-gradient-to-r from-twinkle-accent to-twinkle-highlight bg-clip-text text-transparent">A5 Wagyu-Grade</span> Multi-Modal AI Production.
+                    </h2>
+                    <p class="text-twinkle-muted text-sm leading-relaxed">
+                        Project TWINKLE requires email identification. Each unique email address provisions an isolated profile storage vault and restricted Google Drive integration partition (<code class="text-blue-400">1NRv1r5Z78hdLisOiv5c1j-5rPsIcONSe</code>). Prime Administrator: <code class="text-rose-400">marjoncompany@gmail.com</code>. Logging out completely terminates your local session.
+                    </p>
+                    <div class="flex flex-wrap gap-4 pt-2">
+                        <button onclick="autofillDemoLogin()" class="px-5 py-2.5 rounded-xl glass-panel text-twinkle-accent font-semibold text-xs hover:border-twinkle-accent transition-all flex items-center space-x-2">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span>Autofill Prime Admin Demo</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Login Glass Box -->
+                <div class="glass-panel p-8 rounded-3xl shadow-2xl border border-twinkle-border space-y-6 relative">
+                    <div class="absolute -top-3 right-6 bg-twinkle-accent text-[#0B0F17] text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">Email-Only Secure Vault Login</div>
+                    <h3 class="text-xl font-bold text-white">Creator Sign In</h3>
+                    <p class="text-xs text-twinkle-muted">Enter your email address as your primary identification and master passkey (<code class="text-twinkle-accent">twinkletwinkleisnotachildsong</code>).</p>
+                    
+                    <form onsubmit="handleAuthSubmit(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-medium text-twinkle-muted mb-1.5">Email Address (Primary ID)</label>
+                            <input type="email" id="auth-email-input" placeholder="creator@domain.com" required class="w-full bg-twinkle-bg border border-twinkle-border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-twinkle-accent transition-colors">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-twinkle-muted mb-1.5">Master Passkey</label>
+                            <input type="password" id="auth-password-input" placeholder="Enter master passkey..." required class="w-full bg-twinkle-bg border border-twinkle-border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-twinkle-accent transition-colors">
+                        </div>
+                        <button type="submit" class="w-full py-3 rounded-xl bg-twinkle-accent text-[#0B0F17] font-bold text-sm hover:bg-twinkle-hover transition-colors shadow-lg flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-key"></i>
+                            <span>Authenticate & Open Studio</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <section id="form-options" class="form-view hidden flex-1 flex flex-col p-6 lg:p-10 max-w-7xl mx-auto w-full overflow-y-auto">
+            <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <span class="text-xs font-semibold uppercase tracking-widest text-twinkle-accent">Form 2 of 7 • Active Tenant Email: <span id="opt-profile-email" class="text-white">None</span></span>
+                    <h2 class="text-3xl font-bold mt-1">Project Twinkle Option Dashboard</h2>
+                    <p class="text-twinkle-muted text-sm mt-1">Select your specialized interlinked generative engine or open your email profile's isolated GDrive storage partition.</p>
+                </div>
+                <div class="mt-4 sm:mt-0 flex items-center space-x-3">
+                    <button onclick="toggleGalleryModal(true)" class="px-4 py-2.5 rounded-xl glass-panel text-twinkle-accent font-semibold text-xs flex items-center space-x-2 hover:border-twinkle-accent transition-all">
+                        <i class="fa-solid fa-folder-open"></i>
+                        <span>Storage Gallery & GDrive (<span id="opt-total-capacity-display">20.0 GB</span> Cap)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Storage capacity visualizer card -->
+            <div class="glass-panel p-5 rounded-2xl border border-twinkle-border mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-2xl bg-blue-500/20 text-blue-400 flex items-center justify-center text-xl">
+                        <i class="fa-brands fa-google-drive"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <h4 class="text-sm font-bold text-white">Google Drive Partition: <span class="text-blue-400 font-mono text-xs">1NRv1r5Z78hdLisOiv5c1j-5rPsIcONSe</span></h4>
+                            <span class="text-[10px] bg-emerald-950/80 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-semibold">Free Tier Active (Token Billing Inactive)</span>
+                        </div>
+                        <p class="text-xs text-twinkle-muted">Profile Isolated Storage Partition • Initial 20.0 GB Capacity • Expandable via GCash (550 PHP / 10GB)</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4 w-full sm:w-auto">
+                    <div class="w-full sm:w-64 space-y-1.5">
+                        <div class="flex justify-between text-xs">
+                            <span id="storage-used-text" class="text-slate-300 font-medium">0.4 GB used</span>
+                            <span id="storage-total-text" class="text-twinkle-muted">20.0 GB Total</span>
+                        </div>
+                        <div class="w-full bg-twinkle-bg h-2.5 rounded-full overflow-hidden border border-twinkle-border">
+                            <div id="storage-progress-bar" class="bg-gradient-to-r from-twinkle-accent to-twinkle-highlight h-full w-[2%] rounded-full"></div>
+                        </div>
+                    </div>
+                    <button onclick="switchForm('storage-request')" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-colors whitespace-nowrap shadow-lg flex items-center space-x-1.5">
+                        <i class="fa-solid fa-coins"></i>
+                        <span>Request Storage Extension</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Card 1: Song-Nah -->
+                <div onclick="switchForm('songnah')" class="glass-panel p-6 rounded-3xl border border-twinkle-border hover:border-twinkle-songnah transition-all cursor-pointer group flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <div class="w-12 h-12 rounded-2xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-music"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">Song-Nah Audio Bot</h3>
+                        <p class="text-xs text-twinkle-muted">Suno-alike international standard audio generation (150-210s), vocal timbre cloning, and master audio engineering persona.</p>
+                    </div>
+                    <span class="text-xs text-purple-400 font-semibold mt-4 flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
+                        <span>Launch Song-Nah</span> <i class="fa-solid fa-arrow-right"></i>
+                    </span>
+                </div>
+
+                <!-- Card 2: Lyric Bot -->
+                <div onclick="switchForm('lyric')" class="glass-panel p-6 rounded-3xl border border-twinkle-border hover:border-twinkle-lyric transition-all cursor-pointer group flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <div class="w-12 h-12 rounded-2xl bg-pink-500/20 text-pink-400 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-closed-captioning"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">Lyric Video Bot</h3>
+                        <p class="text-xs text-twinkle-muted">Kinetic typography, karaoke glowing highlights, quality/format options, and expert lyric director persona.</p>
+                    </div>
+                    <span class="text-xs text-pink-400 font-semibold mt-4 flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
+                        <span>Launch Lyric Bot</span> <i class="fa-solid fa-arrow-right"></i>
+                    </span>
+                </div>
+
+                <!-- Card 3: Music Video Bot -->
+                <div onclick="switchForm('mvideo')" class="glass-panel p-6 rounded-3xl border border-twinkle-border hover:border-twinkle-mvideo transition-all cursor-pointer group flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <div class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-video"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">Music Video Bot</h3>
+                        <p class="text-xs text-twinkle-muted">FLUX-powered cinematic visual scenes with selectable resolution/format options and visionary video director.</p>
+                    </div>
+                    <span class="text-xs text-amber-400 font-semibold mt-4 flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
+                        <span>Launch Video Bot</span> <i class="fa-solid fa-arrow-right"></i>
+                    </span>
+                </div>
+
+                <!-- Card 4: Horse Long-Form -->
+                <div onclick="switchForm('horse')" class="glass-panel p-6 rounded-3xl border border-twinkle-border hover:border-twinkle-horse transition-all cursor-pointer group flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <div class="w-12 h-12 rounded-2xl bg-blue-500/20 text-blue-400 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-film"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">Horse Long-Form Bot</h3>
+                        <p class="text-xs text-twinkle-muted">Episodic PDF book adaptation, 720p+ streaming chunk rendering, storage extension, and master feature writer.</p>
+                    </div>
+                    <span class="text-xs text-blue-400 font-semibold mt-4 flex items-center space-x-1 group-hover:translate-x-1 transition-transform">
+                        <span>Launch Long-Form</span> <i class="fa-solid fa-arrow-right"></i>
+                    </span>
+                </div>
+            </div>
+        </section>
+
+        <section id="form-songnah" class="form-view hidden flex-1 flex flex-col lg:flex-row overflow-hidden">
+            <div class="flex-1 flex flex-col border-r border-twinkle-border bg-twinkle-bg/60 h-[calc(100vh-4rem)]">
+                <div class="p-4 border-b border-twinkle-border flex items-center justify-between bg-twinkle-card/80">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-3 h-3 rounded-full bg-purple-500 animate-ping"></div>
+                        <div>
+                            <h3 class="text-sm font-bold text-white">Song-Nah Audio Agent (Master Music Producer & Engineer)</h3>
+                            <p class="text-[10px] text-twinkle-muted">Dedicated 150-210s International Standard Audio Transformer & Stem Separator</p>
+                        </div>
+                    </div>
+                    <span class="text-xs bg-purple-950 text-purple-400 border border-purple-500/30 px-2.5 py-1 rounded-full font-semibold">Audio Soul Active</span>
+                </div>
+
+                <div id="feed-songnah" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-400 text-xs font-bold shrink-0">SN</div>
+                        <div class="glass-panel p-4 rounded-2xl max-w-xl text-xs sm:text-sm text-slate-200 leading-relaxed space-y-2">
+                            <p><strong>Song-Nah Producer:</strong> Yo creator! Welcome to the analog sanctuary. I've got my virtual SSL console warmed up and our target locked firmly on the international standard <strong>150-210s window in G Minor @ 124 BPM</strong>.</p>
+                            <p>Whether we're carving out low-end sub-bass frequencies, cloning vocal timbres, or dialing in tape saturation, let's make something iconic. What vibe are we summoning today?</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 border-t border-twinkle-border bg-twinkle-card/80">
+                    <form onsubmit="handleChatSubmit(event, 'songnah', 'Song-Nah Producer', 'audio')" class="flex items-center space-x-2">
+                        <input type="text" id="input-songnah" placeholder="Instruct Song-Nah (e.g., 'Enhance analog warmth and add lush reverb to vocals')..." class="flex-1 bg-twinkle-bg border border-twinkle-border rounded-xl px-4 py-3 text-xs sm:text-sm text-white focus:outline-none focus:border-purple-500 transition-colors">
+                        <button type="submit" class="px-5 py-3 rounded-xl bg-purple-500 text-white font-bold text-xs sm:text-sm hover:bg-purple-600 transition-colors shadow-lg">Send</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right Inspector -->
+            <div class="w-full lg:w-96 bg-twinkle-card/40 p-6 flex flex-col justify-between overflow-y-auto h-[calc(100vh-4rem)]">
+                <div class="space-y-6">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-twinkle-muted">Song-Nah Parameters</h4>
+                    <div class="space-y-4 text-xs">
+                        <div>
+                            <label class="block text-medium text-slate-300 mb-1">Target Duration (International Standard)</label>
+                            <input type="text" value="150s - 210s (Suno Standard)" class="w-full bg-twinkle-bg border border-twinkle-border rounded-xl px-3 py-2 text-white" readonly>
+                        </div>
+                        <div>
+                            <label class="block text-medium text-slate-300 mb-1">Musical Key & Tempo</label>
+                            <input type="text" value="G Minor @ 124 BPM" class="w-full bg-twinkle-bg border border-twinkle-border rounded-xl px-3 py-2 text-white">
+                        </div>
+                        <div class="p-3 bg-purple-950/20 border border-purple-500/30 rounded-xl space-y-2">
+                            <p class="text-purple-400 font-semibold"><i class="fa-solid fa-link mr-1"></i> Interlinked State</p>
+                            <p class="text-[11px] text-slate-300">Stems automatically sync with <strong>Lyric Video Bot</strong> and <strong>Music Video Bot</strong> under your email profile vault.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="pt-6 border-t border-twinkle-border space-y-3">
+                    <button onclick="triggerEngineRender('Song-Nah International Audio Master generated and saved to your email storage & GDrive partition.', 'audio', 'SongNah_International_Master.wav')" class="w-full py-3 rounded-xl bg-purple-500 text-white font-bold text-xs shadow-lg hover:bg-purple-600">
+                        Render & Save Audio Stem (1.8 GB)
+                    </button>
+                    <button onclick="switchForm('lyric')" class="w-full py-2.5 rounded-xl glass-panel text-slate-300 text-xs hover:text-white">
+                        Proceed to Lyric Video Bot &rarr;
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="form-lyric" class="form-view hidden flex-1 flex flex-col lg:flex-row overflow-hidden">
+            <div class="flex-1 flex flex-col border-r border-twinkle-border bg-twinkle-bg/60 h-[calc(100vh-4rem)]">
+                <div class="p-4 border-b border-twinkle-border flex items-center justify-between bg-twinkle-card/80">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-3 h-3 rounded-full bg-pink-500 animate-ping"></div>
+                        <div>
+                            <h3 class="text-sm font-bold text-white">Lyric Video Agent (Cinematic Kinetic Typography Director)</h3>
+                            <p class="text-[10px] text-twinkle-muted">Interlinked with Song-Nah Audio Stems with Quality & Format Options</p>
+                        </div>
+                    </div>
+                    <span class="text-xs bg-pink-950 text-pink-400 border border-pink-500/30 px-2.5 py-1 rounded-full font-semibold">Lyric Soul Active</span>
+                </div>
+
+                <div id="feed-lyric" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 rounded-xl bg-pink-500/20 border border-pink-500/40 flex items-center justify-center text-pink-400 text-xs font-bold shrink-0">LV</div>
+                        <div class="glass-panel p-4 rounded-2xl max-w-xl text-xs sm:text-sm text-slate-200 leading-relaxed space-y-2">
+                            <p><strong>Lyric Director:</strong> Greetings, visionary. I've locked eyes onto your Song-Nah vocal stem in your email storage. Words aren't just ink on a page; they're emotional vectors.</p>
+                            <p>Do we want glowing neon karaoke highlights pulsing to the 124 BPM kick drum, or a razor-sharp vintage typewriter motion? Tell me what message you're projecting into the cosmos.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 border-t border-twinkle-border bg-twinkle-card/80">
+                    <form onsubmit="handleChatSubmit(event, 'lyric', 'Lyric Director', 'lyric')" class="flex items-center space-x-2">
+                        <input type="text" id="input-lyric" placeholder="Instruct Lyric Bot (e.g., 'Make font size larger and rhythmic during the bridge')..." class="flex-1 bg-twinkle-bg border border-twinkle-border rounded-xl px-4 py-3 text-xs sm:text-sm text-white focus:outline-none focus:border-pink-500 transition-colors">
+                        <button type="submit" class="px-5 py-3 rounded-xl bg-pink-500 text-white font-bold text-xs sm:text-sm hover:bg-pink-600 transition-colors shadow-lg">Send</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right Inspector -->
+            <div class="w-full lg:w-96 bg-twinkle-card/40 p-6 flex flex-col justify-between overflow-y-auto h-[calc(100vh-4rem)]">
+                <div class="space-y-6">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-twinkle-muted">Typography & Quality Parameters</h4>
+                    <div class="space-y-4 text-xs">
+                        <div>
+                            <label class="block text-medium text-slate-300 mb-1">Animation Style</label>
+                            <select class="w-full bg-twinkle-bg border border-twinkle-border rounded-xl px-3 py-2 text-white">
+                                <option>Glowing Neon Karaoke Highlights</option>
+                                <option>Typewriter Motion Overlay</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-medium text-slate-300 mb-1">Quality & Resolution</label>
+                            <select id="lyric-quality-select" class="w-full bg-twinkle-bg border border-twinkle-border rounded-xl px-3 py-2 text-white">
+                                <option value="1080p60">1080p Ultra (60fps Master)</option>
+                                <option value="4K60">4K Cinematic (60fps Pro)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-medium text-slate-300 mb-1">Export Format</label>
+                            <select id="lyric-format-select" class="w-full bg-twinkle-bg border border-twinkle-border rounded-xl px-3 py-2 text-white">
+                                <option value="mp4">MP4 (H.265 Master)</option>
+                                <option value="mov">MOV (Apple ProRes 422)</option>
+                                <option value="webm">WebM (VP9 Transparent)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="pt-6 border-t border-twinkle-border space-y-3">
+                    <button onclick="triggerEngineRenderWithPreset('lyric', 'Karaoke_Typography_Master')" class="w-full py-3 rounded-xl bg-pink-500 text-white font-bold text-xs shadow-lg hover:bg-pink-600">
+                        Render & Save Lyric Video (3.2 GB)
+                    </button>
+                    <button onclick="switchForm('mvideo')" class="w-full py-2.5 rounded-xl glass-panel text-slate-300 text-xs hover:text-white">
+                        Proceed to Music Video Bot &rarr;
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="form-mvideo" class="form-view hidden flex-1 flex flex-col lg:flex-row overflow-hidden">
+            <div class="flex-1 flex flex-col border-r border-twinkle-border bg-twinkle-bg/60 h-[calc(100vh-4rem)]">
+                <div class="p-4 border-b border-twinkle-border flex items-center justify-between bg-twinkle-card/80">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-3 h-3 rounded-full bg-amber-500 animate-ping"></div>
+                        <div>
+                            <h3 class="text-sm font-bold text-white">Music Video Agent (FLUX & Grok Cinematic Director)</h3>
+                            <p class="text-[10px] text-twinkle-muted">Ray-Traced Diffusion Interlinked with Quality & Format Options</p>
+                        </div>
+                    </div>
+                    <span class="text-xs bg-amber-950 text-amber-400 border border-amber-500/30 px-2.5 py-1 rounded-full font-semibold">Video Soul Active</span>
+                </div>
+
+                <div id="feed-mvideo" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-xs font-bold shrink-0">MV</div>
+                        <div class="glass-panel p-4 rounded-2xl max-w-xl text-xs sm:text-sm text-slate-200 leading-relaxed space-y-2">
+                            <p><strong>Video Director:</strong> Lights, camera, neural diffusion! I'm operating on full FLUX ray-traced optics. No boring, flat aesthetics allowed on my watch.</p>
+                            <p>We can keep it polished or toggle 'Spicy Mode' for uninhibited sensual and atmospheric framing. What cinematography are we engineering?</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 border-t border-twinkle-border bg-twinkle-card/80">
+                    <form onsubmit="handleChatSubmit(event, 'mvideo', 'Video Director', 'video')" class="flex items-center space-x-2">
+                        <input type="text" id="input-mvideo" placeholder="Instruct Video Bot (e.g., 'Incorporate anamorphic lens flare and moody cyberpunk grading')..." class="flex-1 bg-twinkle-bg border border-twinkle-border rounded-xl px-4 py-3 text-xs sm:text-sm text-white focus:outline-none focus:border-amber-500 transition-colors">
+                        <button type="submit" class="px-5 py-3 rounded-xl bg-amber-500 text-white font-bold text-xs sm:text-sm hover:bg-amber-600 transition-colors shadow-lg">Send</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right Inspector -->
+            <div class="w-full lg:w-96 bg-twinkle-card/40 p-6 flex flex-col justify-between overflow-y-auto h-[calc(100vh-4rem)]">
+                <div class="space-y-6">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-twinkle-muted">Visual Parameters & Quality</h4>
+                    <div class="space-y-4 text-xs">
+                        <div>
+                            <label class="block text-medium text-slate-300 mb-1">Quality & Resolution</label>
+                            <select id="mvideo-quality-select" class="w-full bg-twinkle-bg border border-twinkle-border rounded-xl px-3 py-2 text-white">
+                                <option value="1080p60">1080p Ray-Traced (60fps)</option>
+                                <option value="4K60">4K Ultra Cinematic (60fps Pro)</option>
+                                <option value="8K30">8K Master Production (30fps)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-medium text-slate-300 mb-1">Export Format</label>
+                            <select id="mvideo-format-select" class="w-full bg-twinkle-bg border border-twinkle-border rounded-xl px-3 py-2 text-white">
+                                <option value="mp4">MP4 (H.265 High Profile)</option>
+                                <option value="mov">MOV (Apple ProRes HQ)</option>
+                                <option value="mkv">MKV (Uncompressed Raw Stream)</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-twinkle-border">
+                            <span class="text-slate-300">Spicy Mode (18+ Permissive)</span>
+                            <input type="checkbox" checked class="rounded bg-twinkle-bg border-twinkle-border text-amber-500">
+                        </div>
+                    </div>
+                </div>
+                <div class="pt-6 border-t border-twinkle-border space-y-3">
+                    <button onclick="triggerEngineRenderWithPreset('video', 'MusicVideo_Cinematic_Master')" class="w-full py-3 rounded-xl bg-amber-500 text-white font-bold text-xs shadow-lg hover:bg-amber-600">
+                        Render & Save Music Video (6.5 GB)
+                    </button>
+                    <button onclick="switchForm('horse')" class="w-full py-2.5 rounded-xl glass-panel text-slate-300 text-xs hover:text-white">
+                        Proceed to Horse Long-Form Bot &rarr;
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="form-horse" class="form-view hidden flex-1 flex flex-col lg:flex-row overflow-hidden">
+            <div class="flex-1 flex flex-col border-r border-twinkle-border bg-twinkle-bg/60 h-[calc(100vh-4rem)]">
+                <div class="p-4 border-b border-twinkle-border flex items-center justify-between bg-twinkle-card/80">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-3 h-3 rounded-full bg-blue-500 animate-ping"></div>
+                        <div>
+                            <h3 class="text-sm font-bold text-white">Horse Long-Form Agent (Master Feature Screenwriter & Director)</h3>
+                            <p class="text-[10px] text-twinkle-muted">PDF Manuscript Parser • 720p+ Streaming Chunk Renderer & GCash Storage Expansion</p>
+                        </div>
+                    </div>
+                    <span class="text-xs bg-blue-950 text-blue-400 border border-blue-500/30 px-2.5 py-1 rounded-full font-semibold">Long-Form Soul Active</span>
+                </div>
+
+                <div id="feed-horse" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-500/40 flex items-center justify-center text-blue-400 text-xs font-bold shrink-0">HL</div>
+                        <div class="glass-panel p-4 rounded-2xl max-w-xl text-xs sm:text-sm text-slate-200 leading-relaxed space-y-2">
+                            <p><strong>Feature Producer:</strong> Epic storytelling isn't rushed; it's architected block by block. I've parsed your PDF manuscript and set up our 5-minute episodic chunk pipeline.</p>
+                            <p>All renders are locked to <strong>720p, 1080p, or 4K</strong>. If our narrative scope outgrows our partition, we can expand storage via GCash (550 PHP per 10GB). What plot twist are we weaving next?</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 border-t border-twinkle-border bg-twinkle-card/80">
+                    <form onsubmit="handleChatSubmit(event, 'horse', 'Feature Producer', 'longform')" class="flex items-center space-x-2">
+                        <input type="text" id="input-horse" placeholder="Instruct Horse Long-Form Bot (e.g., 'Refine dialogue pacing in Act 2, Block 3')..." class="flex-1 bg-twinkle-bg border border-twinkle-border rounded-xl px-4 py-3 text-xs sm:text-sm text-white focus:outline-none focus:border-blue-500 transition-colors">
+                        <button type="submit" class="px-5 py-3 rounded-xl bg-blue-500 text-white font-bold text-xs sm:text-sm hover:bg-blue-600 transition-colors shadow-lg">Send</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right Inspector -->
+            <div class="w-full lg:w-96 bg-twinkle-card/40 p-6 flex flex-col justify-between overflow-y-auto h-[calc(100vh-4rem)]">
+                <div class="space-y-6">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-twinkle-muted">Long-Form Quality & Chunking</h4>
+                    <div class="space-y-4 text-xs">
+                        <div>
+                            <label class="block text-medium text-slate-300 mb-1">Resolution Floor (720p & Up)</label>
+                            <select id="horse-quality-select" class="w-full bg-twinkle-bg border border-twinkle-border rounded-xl px-3 py-2 text-white">
+                                <option value="720p60">720p HD Streaming Stream (60fps)</option>
+                                <option value="1080p60">1080p Full HD Feature Master (60fps)</option>
+                                <option value="4K30">4K Ultra HD Cinema Block (30fps)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-medium text-slate-300 mb-1">Export Format</label>
+                            <select id="horse-format-select" class="w-full bg-twinkle-bg border border-twinkle-border rounded-xl px-3 py-2 text-white">
+                                <option value="mp4">MP4 (H.264 Web Optimized)</option>
+                                <option value="mov">MOV (Master Archive)</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2 pt-2 border-t border-twinkle-border">
+                            <div class="p-3 rounded-xl bg-twinkle-bg border border-blue-500/30 flex items-center justify-between">
+                                <span class="text-white">Block 1 (0-5m): Prologue</span>
+                                <span class="text-emerald-400 font-bold">Done</span>
+                            </div>
+                            <div class="p-3 rounded-xl bg-twinkle-bg border border-blue-500/30 flex items-center justify-between">
+                                <span class="text-white">Block 2 (5-10m): Arrival</span>
+                                <span class="text-emerald-400 font-bold">Done</span>
+                            </div>
+                            <div class="p-3 rounded-xl bg-twinkle-bg border border-blue-500/50 flex items-center justify-between shadow-lg">
+                                <span class="text-blue-400 font-bold">Block 3 (10-15m): Equestrian Run</span>
+                                <span class="text-blue-400 font-bold animate-pulse">Rendering...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pt-6 border-t border-twinkle-border space-y-3">
+                    <button onclick="triggerEngineRenderWithPreset('longform', 'Episodic_Feature_Block_03')" class="w-full py-3 rounded-xl bg-blue-500 text-white font-bold text-xs shadow-lg hover:bg-blue-600">
+                        Render & Save Feature Block 3 (7.8 GB)
+                    </button>
+                    <button onclick="switchForm('storage-request')" class="w-full py-2.5 rounded-xl glass-panel text-blue-400 font-bold text-xs hover:bg-blue-950/30 border border-blue-500/30">
+                        <i class="fa-solid fa-coins mr-1"></i> Request Storage Extension via GCash
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="form-storage-request" class="form-view hidden flex-1 flex flex-col p-6 lg:p-12 max-w-4xl mx-auto w-full overflow-y-auto">
+            <div class="mb-6">
+                <span class="text-xs font-semibold uppercase tracking-widest text-blue-400">Form 7 of 7 • Email Tenant Capacity & GCash Payment</span>
+                <h2 class="text-3xl font-bold mt-1">Storage Extension Request & GCash Verification</h2>
+                <p class="text-twinkle-muted text-sm mt-1">Extend your email profile storage capacity (550 PHP per 10GB extension) via GCash. Changes can take a few minutes up to 2 business days after verification by Prime Admin.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                <!-- GCash QR & Instructions Card -->
+                <div class="glass-panel p-6 rounded-3xl border border-twinkle-border space-y-4 text-center">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider">GCash Instant QR Payment</h3>
+                    <div class="bg-white p-4 rounded-2xl inline-block shadow-lg mx-auto">
+                        <img src="https://placehold.co/240x240/007DFE/FFFFFF?text=GCash+QR+MA***N+S." alt="GCash QR Code" class="w-48 h-48 object-cover rounded-xl mx-auto" onerror="this.src='https://placehold.co/240x240/007DFE/FFFFFF?text=GCash+QR'">
+                    </div>
+                    <div class="text-xs text-slate-300 space-y-1">
+                        <p class="font-bold text-twinkle-accent">Scan via GCash App</p>
+                        <p>Recipient: <span class="text-white font-semibold">MA***N S. (+63 961 676 ****)</span></p>
+                        <p class="text-twinkle-highlight font-mono">Rate: 550 PHP per 10GB Extension</p>
+                    </div>
+                </div>
+
+                <!-- Request Submission Form -->
+                <div class="glass-panel p-6 rounded-3xl border border-twinkle-border space-y-5">
+                    <div class="p-3 rounded-xl bg-blue-950/20 border border-blue-500/30 text-xs">
+                        <p class="font-bold text-blue-400">Active Email ID: <span id="req-email-display" class="text-white">None</span></p>
+                        <p class="text-twinkle-muted">Current Capacity: <span id="req-current-cap" class="text-twinkle-accent font-bold">20.0 GB</span></p>
+                    </div>
+
+                    <form onsubmit="handleStorageRequestSubmit(event)" class="space-y-4 text-xs">
+                        <div>
+                            <label class="block font-medium text-slate-300 mb-1.5">Select Extension Package</label>
+                            <select id="storage-package-select" class="w-full bg-twinkle-bg border border-twinkle-border rounded-xl px-4 py-3 text-white">
+                                <option value="10">10 GB Extension (550 PHP)</option>
+                                <option value="50">50 GB Pro Extension (2,750 PHP)</option>
+                                <option value="100">100 GB Long-Form Master Package (5,500 PHP)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-medium text-slate-300 mb-1.5">GCash Reference / Transaction Number</label>
+                            <input type="text" id="gcash-ref-input" placeholder="e.g., 9823746192847" required class="w-full bg-twinkle-bg border border-twinkle-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors">
+                        </div>
+                        <div>
+                            <label class="block font-medium text-slate-300 mb-1.5">Your Email Address (For Verification)</label>
+                            <input type="email" id="gcash-email-input" placeholder="Enter your login email address..." required class="w-full bg-twinkle-bg border border-twinkle-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors">
+                        </div>
+                        <div class="p-3 rounded-xl bg-twinkle-bg border border-twinkle-border text-[11px] text-twinkle-muted leading-relaxed">
+                            <i class="fa-solid fa-clock mr-1 text-twinkle-accent"></i> Changes take anywhere from a few minutes up to <strong>2 business days</strong> after manual GCash reconciliation by Prime Administrator (<code class="text-rose-400">marjoncompany@gmail.com</code>).
+                        </div>
+                        <button type="submit" class="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-lg flex items-center justify-center space-x-2 transition-colors">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>Submit Payment & Storage Request</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <section id="form-admin" class="form-view hidden flex-1 flex flex-col p-6 lg:p-12 max-w-6xl mx-auto w-full overflow-y-auto">
+            <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <span class="text-xs font-semibold uppercase tracking-widest text-rose-400">Prime Admin Master Control Panel</span>
+                    <h2 class="text-3xl font-bold mt-1">Tenant Email Storage & GCash Request Management</h2>
+                    <p class="text-twinkle-muted text-sm mt-1">Welcome Prime Administrator <strong>marjoncompany@gmail.com</strong>. Review GCash transaction receipts and adjust email profile storage capacities (550 PHP per 10GB extension).</p>
+                </div>
+            </div>
+
+            <!-- Pending GCash Requests Queue -->
+            <div class="glass-panel p-6 rounded-3xl border border-twinkle-border mb-8 space-y-4">
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center space-x-2">
+                    <i class="fa-solid fa-inbox text-rose-400"></i>
+                    <span>Pending GCash Storage Requests</span>
+                </h3>
+                <div id="admin-requests-list" class="space-y-3"></div>
+            </div>
+
+            <!-- All Tenant Email Profiles Vault Management -->
+            <div class="glass-panel p-6 rounded-3xl border border-twinkle-border space-y-4">
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center space-x-2">
+                    <i class="fa-solid fa-users-gear text-twinkle-accent"></i>
+                    <span>Registered Tenant Email Profiles & GDrive Vaults</span>
+                </h3>
+                <div id="admin-tenants-list" class="space-y-3"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="gallery-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-4xl w-full max-h-[85vh] rounded-3xl border border-twinkle-border flex flex-col overflow-hidden shadow-2xl">
+            <div class="p-6 border-b border-twinkle-border flex items-center justify-between bg-twinkle-card/90">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-twinkle-accent/20 text-twinkle-accent flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-folder-tree"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-white">Outputs File Gallery & GDrive Vault (<span id="modal-total-capacity-display">20.0 GB</span> Capacity)</h3>
+                        <p class="text-xs text-twinkle-muted">Restricted Google Drive Vault: <span class="text-blue-400 font-mono">1NRv1r5Z78hdLisOiv5c1j-5rPsIcONSe</span></p>
+                        <p class="text-[10px] text-twinkle-accent font-semibold">Active Tenant Email ID: <span id="gallery-active-email" class="text-white">None</span></p>
+                    </div>
+                </div>
+                <button onclick="toggleGalleryModal(false)" class="w-9 h-9 rounded-full bg-twinkle-bg border border-twinkle-border text-twinkle-muted hover:text-white flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div id="gallery-folders-container" class="flex-1 overflow-y-auto p-6 space-y-6 text-xs"></div>
+
+            <div class="p-4 border-t border-twinkle-border bg-twinkle-card/90 flex justify-between items-center">
+                <span class="text-[11px] text-twinkle-muted">Files persist independently across email login vaults and sync to your restricted GDrive partition.</span>
+                <div class="flex items-center space-x-3">
+                    <button onclick="switchForm('storage-request'); toggleGalleryModal(false);" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs transition-colors">
+                        Request Extension (GCash)
+                    </button>
+                    <button onclick="toggleGalleryModal(false)" class="px-6 py-2.5 rounded-xl bg-twinkle-accent text-[#0B0F17] font-bold text-xs hover:bg-twinkle-hover transition-colors">
+                        Close Gallery
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentEmail = null;
+        const MASTER_PASSKEY = "twinkletwinkleisnotachildsong";
+        const PRIME_ADMIN_EMAIL = "marjoncompany@gmail.com";
+        const GDRIVE_ROOT_FOLDER = "https://drive.google.com/drive/folders/1NRv1r5Z78hdLisOiv5c1j-5rPsIcONSe";
+
+        const defaultProfilesVault = {
+            "marjoncompany@gmail.com": {
+                capacityGB: 100.0,
+                audio: ["SongNah_International_Master.wav"],
+                lyric: ["Karaoke_Typography_Master.mp4"],
+                video: ["MusicVideo_Cinematic_Master.mp4"],
+                longform: ["Episodic_Feature_Block_03.mp4"]
+            },
+            "creator@twinkle.studio": {
+                capacityGB: 20.0,
+                audio: ["Welcome_Audio_Stems.wav"],
+                lyric: ["Welcome_Lyric_Draft.mp4"],
+                video: ["Welcome_Concept_01.png"],
+                longform: ["Welcome_Manuscript_Outline.json"]
+            }
+        };
+
+        const defaultRequestsQueue = [
+            { id: 'req-1', email: 'creator@twinkle.studio', increment: 10, gcashRef: 'GCASH9823746', status: 'Pending', timestamp: '2026-06-10 14:22' }
+        ];
+
+        function getProfilesVault() {
+            const stored = localStorage.getItem('twinkle_profiles_email_vault');
+            if (stored) { try { return JSON.parse(stored); } catch(e) {} }
+            return defaultProfilesVault;
+        }
+
+        function saveProfilesVault(vault) {
+            localStorage.setItem('twinkle_profiles_email_vault', JSON.stringify(vault));
+        }
+
+        function getRequestsQueue() {
+            const stored = localStorage.getItem('twinkle_gcash_requests_queue');
+            if (stored) { try { return JSON.parse(stored); } catch(e) {} }
+            return defaultRequestsQueue;
+        }
+
+        function saveRequestsQueue(queue) {
+            localStorage.setItem('twinkle_gcash_requests_queue', JSON.stringify(queue));
+        }
+
+        function autofillDemoLogin() {
+            document.getElementById('auth-email-input').value = PRIME_ADMIN_EMAIL;
+            document.getElementById('auth-password-input').value = MASTER_PASSKEY;
+        }
+
+        function handleAuthSubmit(event) {
+            event.preventDefault();
+            const emailInput = document.getElementById('auth-email-input');
+            const passInput = document.getElementById('auth-password-input');
+            const email = emailInput.value.trim().toLowerCase();
+            const pass = passInput.value.trim();
+
+            if (!email) return;
+
+            if (pass !== MASTER_PASSKEY) {
+                alert("Incorrect master passkey. Authentication denied.");
+                return;
+            }
+
+            currentEmail = email;
+
+            let vault = getProfilesVault();
+            if (!vault[currentEmail]) {
+                vault[currentEmail] = {
+                    capacityGB: 20.0,
+                    audio: ["Welcome_Audio_Stems.wav"],
+                    lyric: ["Welcome_Lyric_Draft.mp4"],
+                    video: ["Welcome_Concept_01.png"],
+                    longform: ["Welcome_Manuscript_Outline.json"]
+                };
+                saveProfilesVault(vault);
+            }
+
+            document.getElementById('current-user-email-display').textContent = currentEmail;
+            document.getElementById('opt-profile-email').textContent = currentEmail;
+            document.getElementById('gallery-active-email').textContent = currentEmail;
+            document.getElementById('req-email-display').textContent = currentEmail;
+            document.getElementById('gcash-email-input').value = currentEmail;
+
+            document.getElementById('app-nav').classList.remove('hidden');
+            document.getElementById('gallery-btn').classList.remove('hidden');
+            document.getElementById('user-profile-widget').classList.remove('hidden');
+
+            const avatarBadge = document.getElementById('user-avatar-badge');
+            const adminNavBtn = document.getElementById('nav-admin');
+
+            if (currentEmail === PRIME_ADMIN_EMAIL) {
+                avatarBadge.className = 'w-7 h-7 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 text-xs font-semibold';
+                adminNavBtn.classList.remove('hidden');
+            } else {
+                avatarBadge.className = 'w-7 h-7 rounded-full bg-twinkle-accent/20 border border-twinkle-accent/40 flex items-center justify-center text-twinkle-accent text-xs font-semibold';
+                adminNavBtn.classList.add('hidden');
+            }
+
+            updateGalleryUI();
+            updateStorageRequestFormUI();
+            if (currentEmail === PRIME_ADMIN_EMAIL) {
+                updateAdminDashboardUI();
+            }
+            switchForm('options');
+        }
+
+        function handleLogout() {
+            currentEmail = null;
+            document.getElementById('auth-email-input').value = '';
+            document.getElementById('auth-password-input').value = '';
+
+            document.getElementById('app-nav').classList.add('hidden');
+            document.getElementById('gallery-btn').classList.add('hidden');
+            document.getElementById('user-profile-widget').classList.add('hidden');
+            document.getElementById('nav-admin').classList.add('hidden');
+
+            switchForm('landing');
+        }
+
+        function switchForm(formId) {
+            if (!currentEmail && formId !== 'landing') {
+                alert("Access restricted. Please log in with your email and master passkey.");
+                switchForm('landing');
+                return;
+            }
+
+            if (formId === 'admin' && currentEmail !== PRIME_ADMIN_EMAIL) {
+                alert("Access denied. Prime Administrator rights required.");
+                switchForm('options');
+                return;
+            }
+
+            const views = document.querySelectorAll('.form-view');
+            views.forEach(v => v.classList.add('hidden'));
+
+            const target = document.getElementById(`form-${formId}`);
+            if (target) target.classList.remove('hidden');
+
+            const navs = ['landing', 'options', 'songnah', 'lyric', 'mvideo', 'horse', 'storage-request', 'admin'];
+            navs.forEach(n => {
+                const btn = document.getElementById(`nav-${n}`);
+                if (btn) {
+                    if (n === formId) {
+                        if (n === 'admin') {
+                            btn.classList.add('bg-rose-500', 'text-white', 'font-bold');
+                            btn.classList.remove('text-rose-400');
+                        } else {
+                            btn.classList.add('bg-twinkle-accent', 'text-[#0B0F17]', 'font-bold');
+                            btn.classList.remove('text-twinkle-muted');
+                        }
+                    } else {
+                        if (n === 'admin') {
+                            btn.classList.remove('bg-rose-500', 'text-white', 'font-bold');
+                            btn.classList.add('text-rose-400');
+                        } else {
+                            btn.classList.remove('bg-twinkle-accent', 'text-[#0B0F17]', 'font-bold');
+                            btn.classList.add('text-twinkle-muted');
+                        }
+                    }
+                }
+            });
+
+            if (formId === 'admin') {
+                updateAdminDashboardUI();
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleGalleryModal(show) {
+            if (!currentEmail) return;
+            const modal = document.getElementById('gallery-modal');
+            if (show) {
+                updateGalleryUI();
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function updateStorageRequestFormUI() {
+            if (!currentEmail) return;
+            const vault = getProfilesVault();
+            const userData = vault[currentEmail] || { capacityGB: 20.0 };
+            document.getElementById('req-email-display').textContent = currentEmail;
+            document.getElementById('req-current-cap').textContent = `${(userData.capacityGB || 20.0).toFixed(1)} GB`;
+        }
+
+        function handleStorageRequestSubmit(event) {
+            event.preventDefault();
+            if (!currentEmail) return;
+            const packageGB = parseInt(document.getElementById('storage-package-select').value);
+            const gcashRef = document.getElementById('gcash-ref-input').value.trim();
+            const reqEmail = document.getElementById('gcash-email-input').value.trim().toLowerCase();
+
+            let queue = getRequestsQueue();
+            const newReq = {
+                id: 'req-' + Date.now(),
+                email: reqEmail || currentEmail,
+                increment: packageGB,
+                gcashRef: gcashRef,
+                status: 'Pending',
+                timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16)
+            };
+            queue.unshift(newReq);
+            saveRequestsQueue(queue);
+
+            document.getElementById('gcash-ref-input').value = '';
+            alert(`Demo request saved in this browser only for +${packageGB} GB (reference: ${gcashRef}). It has NOT been sent to an administrator and no payment was verified.`);
+            switchForm('options');
+        }
+
+        function updateAdminDashboardUI() {
+            if (currentEmail !== PRIME_ADMIN_EMAIL) return;
+            const vault = getProfilesVault();
+            const queue = getRequestsQueue();
+
+            const reqContainer = document.getElementById('admin-requests-list');
+            if (queue.length === 0) {
+                reqContainer.innerHTML = `<p class="text-xs text-twinkle-muted">No pending GCash storage requests.</p>`;
+            } else {
+                reqContainer.innerHTML = queue.map(req => `
+                    <div class="p-4 rounded-xl bg-twinkle-bg border border-twinkle-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs">
+                        <div class="space-y-1">
+                            <p class="font-bold text-white"><i class="fa-solid fa-envelope mr-1 text-twinkle-accent"></i> ${req.email} <span class="text-blue-400 font-mono ml-2">(+${req.increment} GB)</span></p>
+                            <p class="text-slate-300"><strong>GCash Ref:</strong> <span class="text-twinkle-highlight font-mono">${req.gcashRef}</span></p>
+                            <p class="text-[10px] text-twinkle-muted">Submitted: ${req.timestamp} • Status: <span class="${req.status === 'Pending' ? 'text-amber-400 font-bold' : 'text-emerald-400 font-bold'}">${req.status}</span></p>
+                        </div>
+                        ${req.status === 'Pending' ? `
+                            <div class="flex items-center space-x-2">
+                                <button onclick="adminApproveRequest('${req.id}', '${req.email}', ${req.increment})" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold transition-colors">
+                                    Approve (+${req.increment}GB)
+                                </button>
+                                <button onclick="adminRejectRequest('${req.id}')" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-lg font-bold transition-colors">
+                                    Reject
+                                </button>
+                            </div>
+                        ` : `<span class="text-emerald-400 font-bold">Processed</span>`}
+                    </div>
+                `).join('');
+            }
+
+            const tenantsContainer = document.getElementById('admin-tenants-list');
+            tenantsContainer.innerHTML = Object.keys(vault).map(email => {
+                const data = vault[email];
+                return `
+                    <div class="p-4 rounded-xl bg-twinkle-bg border border-twinkle-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs">
+                        <div>
+                            <p class="font-bold text-white"><i class="fa-solid fa-user-shield mr-1 text-twinkle-accent"></i> ${email}</p>
+                            <p class="text-[11px] text-twinkle-muted">Capacity: <span class="text-blue-400 font-bold">${(data.capacityGB || 20.0).toFixed(1)} GB</span> • Files: ${(data.audio?.length || 0) + (data.lyric?.length || 0) + (data.video?.length || 0) + (data.longform?.length || 0)} items</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="adminAdjustCapacity('${email}', 10)" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-bold transition-colors">
+                                +10GB
+                            </button>
+                            <button onclick="adminAdjustCapacity('${email}', 100)" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-bold transition-colors">
+                                +100GB
+                            </button>
+                            <button onclick="adminAdjustCapacity('${email}', -10)" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-bold transition-colors">
+                                -10GB
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function adminApproveRequest(reqId, email, increment) {
+            let vault = getProfilesVault();
+            if (!vault[email]) vault[email] = { capacityGB: 20.0, audio: [], lyric: [], video: [], longform: [] };
+            vault[email].capacityGB = (vault[email].capacityGB || 20.0) + increment;
+            saveProfilesVault(vault);
+
+            let queue = getRequestsQueue();
+            queue = queue.map(r => r.id === reqId ? { ...r, status: 'Approved' } : r);
+            saveRequestsQueue(queue);
+
+            updateAdminDashboardUI();
+            alert(`Demo capacity updated locally for ${email}: ${vault[email].capacityGB.toFixed(1)} GB. No Google Drive quota was changed.`);
+        }
+
+        function adminRejectRequest(reqId) {
+            let queue = getRequestsQueue();
+            queue = queue.map(r => r.id === reqId ? { ...r, status: 'Rejected' } : r);
+            saveRequestsQueue(queue);
+            updateAdminDashboardUI();
+        }
+
+        function adminAdjustCapacity(email, delta) {
+            let vault = getProfilesVault();
+            if (!vault[email]) vault[email] = { capacityGB: 20.0, audio: [], lyric: [], video: [], longform: [] };
+            vault[email].capacityGB = Math.max(10.0, (vault[email].capacityGB || 20.0) + delta);
+            saveProfilesVault(vault);
+            updateAdminDashboardUI();
+            alert(`Demo capacity updated locally for ${email}: ${vault[email].capacityGB.toFixed(1)} GB. No Google Drive quota was changed.`);
+        }
+
+        function updateGalleryUI() {
+            if (!currentEmail) return;
+            const vault = getProfilesVault();
+            const userData = vault[currentEmail] || { capacityGB: 20.0, audio: [], lyric: [], video: [], longform: [] };
+            const userFiles = userData;
+            
+            const totalCount = (userFiles.audio?.length || 0) + (userFiles.lyric?.length || 0) + (userFiles.video?.length || 0) + (userFiles.longform?.length || 0);
+            document.getElementById('gallery-count-badge').textContent = totalCount;
+            
+            const totalCapacity = userData.capacityGB || 20.0;
+            document.getElementById('opt-total-capacity-display').textContent = `${totalCapacity.toFixed(1)} GB`;
+            document.getElementById('modal-total-capacity-display').textContent = `${totalCapacity.toFixed(1)} GB`;
+
+            const simulatedGB = Math.min(totalCapacity, (totalCount * 1.8 + 0.4)).toFixed(1);
+            const percentUsed = Math.min(100, (simulatedGB / totalCapacity) * 100).toFixed(1);
+            
+            document.getElementById('storage-used-text').textContent = `${simulatedGB} GB used`;
+            document.getElementById('storage-total-text').textContent = `${totalCapacity.toFixed(1)} GB Total`;
+            document.getElementById('storage-progress-bar').style.width = `${percentUsed}%`;
+
+            const tenantFolderHash = btoa(currentEmail).substring(0, 12);
+            const container = document.getElementById('gallery-folders-container');
+            container.innerHTML = `
+                <div class="p-3 bg-blue-950/30 border border-blue-500/30 rounded-xl flex items-center justify-between text-xs">
+                    <div>
+                        <p class="font-bold text-blue-400"><i class="fa-brands fa-google-drive mr-1"></i> Restricted GDrive Partition (${totalCapacity.toFixed(1)}GB Capacity)</p>
+                        <p class="text-[11px] text-slate-300">Profile folder: <code class="text-blue-300">${GDRIVE_ROOT_FOLDER}/${tenantFolderHash}</code></p>
+                    </div>
+                    <a href="${GDRIVE_ROOT_FOLDER}" target="_blank" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-bold text-[11px] transition-colors">
+                        Open Tenant GDrive Vault
+                    </a>
+                </div>
+
+                <!-- Folder 1: Audio Masters -->
+                <div class="glass-panel p-5 rounded-2xl border border-twinkle-border space-y-3">
+                    <h4 class="font-bold uppercase tracking-wider text-purple-400 flex items-center space-x-2">
+                        <i class="fa-solid fa-music"></i>
+                        <span>Song-Nah Audio Masters (`.wav` International Standard)</span>
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        ${(userFiles.audio || []).map(f => `
+                            <div class="p-3 rounded-xl bg-twinkle-bg border border-twinkle-border flex items-center justify-between">
+                                <span class="truncate" title="${f}">${f}</span>
+                                <i class="fa-solid fa-download text-purple-400 cursor-pointer hover:text-white" onclick="alert('Downloading ${f} from restricted partition for ${currentEmail}...')"></i>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <!-- Folder 2: Lyric Videos -->
+                <div class="glass-panel p-5 rounded-2xl border border-twinkle-border space-y-3">
+                    <h4 class="font-bold uppercase tracking-wider text-pink-400 flex items-center space-x-2">
+                        <i class="fa-solid fa-closed-captioning"></i>
+                        <span>Lyric Video Bot Outputs (Configurable Quality & Format)</span>
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        ${(userFiles.lyric || []).map(f => `
+                            <div class="p-3 rounded-xl bg-twinkle-bg border border-twinkle-border flex items-center justify-between">
+                                <span class="truncate" title="${f}">${f}</span>
+                                <i class="fa-solid fa-download text-pink-400 cursor-pointer hover:text-white" onclick="alert('Downloading ${f} from restricted partition for ${currentEmail}...')"></i>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <!-- Folder 3: Music Videos -->
+                <div class="glass-panel p-5 rounded-2xl border border-twinkle-border space-y-3">
+                    <h4 class="font-bold uppercase tracking-wider text-amber-400 flex items-center space-x-2">
+                        <i class="fa-solid fa-video"></i>
+                        <span>Music Video Bot Outputs (FLUX Ray-Traced & Formats)</span>
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        ${(userFiles.video || []).map(f => `
+                            <div class="p-3 rounded-xl bg-twinkle-bg border border-twinkle-border flex items-center justify-between">
+                                <span class="truncate" title="${f}">${f}</span>
+                                <i class="fa-solid fa-download text-amber-400 cursor-pointer hover:text-white" onclick="alert('Downloading ${f} from restricted partition for ${currentEmail}...')"></i>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <!-- Folder 4: Long-Form Feature -->
+                <div class="glass-panel p-5 rounded-2xl border border-twinkle-border space-y-3">
+                    <h4 class="font-bold uppercase tracking-wider text-blue-400 flex items-center space-x-2">
+                        <i class="fa-solid fa-film"></i>
+                        <span>Horse Long-Form Outputs (720p+ Streaming / Manuscripts)</span>
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        ${(userFiles.longform || []).map(f => `
+                            <div class="p-3 rounded-xl bg-twinkle-bg border border-twinkle-border flex items-center justify-between">
+                                <span class="truncate" title="${f}">${f}</span>
+                                <i class="fa-solid fa-download text-blue-400 cursor-pointer hover:text-white" onclick="alert('Downloading ${f} from restricted partition for ${currentEmail}...')"></i>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Intelligent AI Agent Responses with GPT/Grok/Gemini Reasoning, Domain Expertise & Wit
+        function getIntelligentAgentResponse(formKey, userQuery) {
+            const q = userQuery.toLowerCase();
+            
+            if (formKey === 'songnah') {
+                if (q.includes('bass') || q.includes('low') || q.includes('mix')) {
+                    return "As your audio engineer, I've sculpted the low end at 80Hz with a tight Q-factor to give that kick drum absolute authority while keeping the sub-bass warm. Remember, mixing is 90% subtraction and 10% stubbornness. We're locked at 124 BPM in G Minor—shall I apply parallel compression to glue the mix together?";
+                } else if (q.includes('vocal') || q.includes('clon') || q.includes('timbre')) {
+                    return "Your vocal timbre profile is mapped. We're matching international streaming loudness targets (-14 LUFS). I've added a touch of air EQ around 12kHz to let your vocals cut through the analog warmth without piercing the ears. Ready to commit this stem?";
+                }
+                return `Analyzing your audio query through our Suno-alike audio transformer... Your prompt "${userQuery}" has great sonic potential. Let's make sure our 150-210s structural arc hits the emotional peak right before the 2-minute mark. Need any adjustments to the arrangement or stem isolation?`;
+            }
+            
+            if (formKey === 'lyric') {
+                if (q.includes('font') || q.includes('size') || q.includes('karaoke')) {
+                    return "Typography is the silent actor of a music video. I've scaled up the glowing neon karaoke highlights so they breathe dynamically with the vocal transient peaks. No clumsy overlapping text here—pure kinetic poetry.";
+                } else if (q.includes('speed') || q.includes('motion') || q.includes('typewriter')) {
+                    return "Typewriter motion engaged with organic jitter parameters. It mimics an old mechanical keyboard while tracking the phrasing of your lyrics precisely. Shall we output this in 4K60 Apple ProRes or H.265 master?";
+                }
+                return `Directing your typography pipeline for "${userQuery}"... Every word needs to hit the viewer with visual cadence. I've synchronized the text keyframes with your Song-Nah audio stems in your email vault. What else can we refine?`;
+            }
+            
+            if (formKey === 'mvideo') {
+                if (q.includes('spicy') || q.includes('dark') || q.includes('cyber')) {
+                    return "Spicy Mode and ray-traced optics active! We've dialed in anamorphic blue lens flares, deep shadow gradients, and high-contrast skin tones that pop against the cyberpunk alleyway backdrop. Zero artifacting, 100% cinematic attitude.";
+                } else if (q.includes('resolution') || q.includes('4k') || q.includes('8k')) {
+                    return "Resolution scaled to your specification. Neural frame interpolation is running at 60fps to ensure silky-smooth camera pans over our FLUX-generated vistas. Ready to lock in the final render?";
+                }
+                return `Rendering your visual direction "${userQuery}" through our diffusion pipeline... The lighting physics are calibrated for maximum emotional impact. Check your outputs gallery once the render completes!`;
+            }
+            
+            if (formKey === 'horse') {
+                if (q.includes('block') || q.includes('chapter') || q.includes('pacing')) {
+                    return "Screenplay structure analyzed. We've optimized Block 3 to maintain character continuity and atmospheric lighting consistency across the 5-minute chunk boundary. No narrative whiplash on my watch.";
+                } else if (q.includes('storage') || q.includes('gcash') || q.includes('extend')) {
+                    return "Epic long-form projects demand massive storage. You can request +10GB extensions anytime via our GCash integration form (550 PHP per 10GB). Prime admin marjoncompany@gmail.com will verify and sync your GDrive partition!";
+                }
+                return `Processing long-form narrative block for "${userQuery}"... The manuscript translation is tracking seamlessly at 720p+ streaming standards. Let's keep this cinematic momentum rolling!`;
+            }
+
+            return `Processing your instructions with A5 Wagyu precision under profile ${currentEmail}. All parameters synchronized with your GDrive partition. Ready when you are!`;
+        }
+
+        function handleChatSubmit(event, formKey, agentName, fileCategory) {
+            event.preventDefault();
+            if (!currentEmail) return;
+            const input = document.getElementById(`input-${formKey}`);
+            const text = input.value.trim();
+            if (!text) return;
+
+            const feed = document.getElementById(`feed-${formKey}`);
+            
+            const userMsg = document.createElement('div');
+            userMsg.className = 'flex items-start justify-end space-x-3';
+            userMsg.innerHTML = `
+                <div class="glass-panel p-4 rounded-2xl max-w-xl text-xs sm:text-sm text-slate-200 leading-relaxed bg-twinkle-accent/10 border-twinkle-accent/30">
+                    <p><strong>Creator (${currentEmail}):</strong> ${escapeHtml(text)}</p>
+                </div>
+                <div class="w-8 h-8 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-twinkle-accent text-xs font-bold shrink-0">YOU</div>
+            `;
+            feed.appendChild(userMsg);
+            input.value = '';
+            feed.scrollTop = feed.scrollHeight;
+
+            setTimeout(() => {
+                const aiResponseText = getIntelligentAgentResponse(formKey, text);
+                const aiMsg = document.createElement('div');
+                aiMsg.className = 'flex items-start space-x-3';
+                aiMsg.innerHTML = `
+                    <div class="w-8 h-8 rounded-xl bg-twinkle-accent/20 border border-twinkle-accent/40 flex items-center justify-center text-twinkle-accent text-xs font-bold shrink-0">AI</div>
+                    <div class="glass-panel p-4 rounded-2xl max-w-xl text-xs sm:text-sm text-slate-200 leading-relaxed space-y-2">
+                        <p><strong>${agentName}:</strong> ${escapeHtml(aiResponseText)}</p>
+                    </div>
+                `;
+                feed.appendChild(aiMsg);
+                feed.scrollTop = feed.scrollHeight;
+            }, 900);
+        }
+
+        function triggerEngineRender(msg, category, filename) {
+            if (!currentEmail) return;
+            let vault = getProfilesVault();
+            if (!vault[currentEmail]) vault[currentEmail] = { capacityGB: 20.0, audio: [], lyric: [], video: [], longform: [] };
+            if (!vault[currentEmail][category]) vault[currentEmail][category] = [];
+            
+            if (!vault[currentEmail][category].includes(filename)) {
+                vault[currentEmail][category].push(filename);
+                saveProfilesVault(vault);
+            }
+
+            alert(`Demo output record added locally for ${currentEmail}. No media was rendered or uploaded to Google Drive by this legacy action.`);
+            toggleGalleryModal(true);
+        }
+
+        function triggerEngineRenderWithPreset(category, baseName) {
+            if (!currentEmail) return;
+            let quality = "1080p60";
+            let format = "mp4";
+
+            if (category === 'lyric') {
+                quality = document.getElementById('lyric-quality-select').value;
+                format = document.getElementById('lyric-format-select').value;
+            } else if (category === 'video') {
+                quality = document.getElementById('mvideo-quality-select').value;
+                format = document.getElementById('mvideo-format-select').value;
+            } else if (category === 'longform') {
+                quality = document.getElementById('horse-quality-select').value;
+                format = document.getElementById('horse-format-select').value;
+            }
+
+            const filename = `${baseName}_${quality}.${format}`;
+            triggerEngineRender(`High-quality professional output rendered at ${quality} (${format.toUpperCase()}) and saved to your email profile vault.`, category, filename);
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+    </script>
+    <script type="module" src="/src/production.js"></script>
+</body>
+</html>
